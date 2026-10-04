@@ -40,11 +40,15 @@ jobs:
       - name: Build, deploy, and verify the isolated RSSHub worker
         run: node scripts/build-and-deploy.mjs
 
-      - name: Record the deployed upstream revision
-        if: success()
+      - name: Check service health once a week
+        if: always() && !cancelled()
+        run: node scripts/health-check.mjs
+
+      - name: Record deployment and service health
+        if: always() && !cancelled()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add state/upstream-sha.json
-          git diff --cached --quiet || git commit -m "chore: record RSSHub upstream revision"
+          git add state/
+          git diff --cached --quiet || git commit -m "chore: record RSSHub deployment and health"
           git push

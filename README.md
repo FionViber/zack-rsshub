@@ -14,6 +14,12 @@ It does not contain an OAuth token, Cloudflare API token, RSSHub access key, rea
 
 The workflow requires `contents: write` to record the actually deployed upstream SHA in `state/upstream-sha.json`. It can be run manually with `force=true` for the first complete validation. A concurrency lock prevents overlapping deployments. Set repository variable `RSSHUB_AUTO_UPDATE_ENABLED` to `true` after a successful manual run; scheduled jobs are skipped until it is set. Unchanged upstream revisions skip dependency installation and deployment. No Render service is used.
 
+## Weekly service health report
+
+The hourly workflow also checks whether the last service health report is at least seven days old. When due, it checks the homepage, anonymous and authenticated health endpoint, and the built-in RSS test route. It commits the timestamp and response status to `state/health-check.json`, including failed checks. A failed check leaves the workflow visibly failed. The report contains no credentials, response bodies or private deployment URL.
+
+These actual report commits provide regular repository activity even when the upstream revision is unchanged. Scheduled workflow runs alone do not provide this assurance: GitHub automatically disables scheduled workflows after 60 days without repository activity in a public repository. The weekly report uses the existing workflow permissions, without an additional account token. If the workflow is manually disabled or its write permission is removed, it needs to be restored in GitHub Actions.
+
 ## Free profile behavior
 
 The workflow copies `templates/free-profile-safe.mjs` into the disposable upstream checkout. It filters routes that require non-optional credentials or a browser runtime and writes the filtered route catalog only inside that temporary checkout. The script does not create a full catalog backup beside the production build, and cleanup removes the entire temporary checkout on success or failure.
