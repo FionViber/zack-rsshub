@@ -77,7 +77,7 @@ try {
     await run('pnpm', ['exec', 'tsx', 'scripts/workflow/build-playwright-worker.ts'], { env: buildEnv });
     await run('pnpm', ['exec', 'tsx', 'scripts/workflow/build-routes.ts'], { env: { ...buildEnv, NODE_ENV: 'dev', WORKER_BUILD: 'true' } });
     await run('node', ['.dev.profile-free-safe.mjs']);
-    await run('pnpm', ['exec', 'tsdown', '--config', '.dev.tsdown-free.config.ts']);
+    await run('pnpm', ['exec', 'tsdown', '--config', '.dev.tsdown-free.config.ts'], {env:{...buildEnv,NODE_ENV:'production'}});
 
     const wrangler = {
         name: 'zackrsshub-core',
@@ -125,3 +125,4 @@ try {
 }
 }
 await main();
+
